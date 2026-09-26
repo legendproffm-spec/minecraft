@@ -304,8 +304,8 @@
             document.getElementById('ui-difficulty').innerText = CONFIG.difficulty;
             document.getElementById('maintenance-date').innerText = CONFIG.nextMaintenance;
 
-            // Generate direct Minecraft launch & add link
-            const mcLink = `minecraft://1.19.0/addServer?name=${encodeURIComponent(CONFIG.serverName)}&ip=${CONFIG.ipAddress}&port=${CONFIG.port}`;
+            // Universal Minecraft Bedrock Auto-Add URL Scheme
+            const mcLink = `minecraft://?addExternalServer=${encodeURIComponent(CONFIG.serverName)}|${CONFIG.ipAddress}:${CONFIG.port}`;
             document.getElementById('mc-auto-link').setAttribute('href', mcLink);
         }
 
