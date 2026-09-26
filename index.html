@@ -82,6 +82,71 @@
         .online .dot { background-color: #22c55e; }
         .offline .dot { background-color: #ef4444; }
 
+        /* Server Details Boxes */
+        .details-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .ip-box {
+            background: #0f172a;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px dashed #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ip-box span {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            display: block;
+            font-weight: 600;
+        }
+
+        .ip-box code {
+            color: #38bdf8;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover { background: #1d4ed8; }
+
+        /* Auto-Add Button */
+        .add-mc-btn {
+            width: 100%;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 20px;
+            transition: 0.2s;
+        }
+
+        .add-mc-btn:hover { background: #7c3aed; }
+
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -103,41 +168,9 @@
         }
 
         .info-box p {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             margin-top: 4px;
-        }
-
-        .ip-box {
-            background: #0f172a;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px dashed #475569;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ip-box code {
-            color: #38bdf8;
-            font-size: 0.9rem;
-        }
-
-        .copy-btn, .action-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover, .action-btn:hover {
-            background: #1d4ed8;
         }
 
         .action-btn {
@@ -145,11 +178,16 @@
             padding: 12px;
             margin-top: 10px;
             background: #059669;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        .action-btn:hover {
-            background: #047857;
-        }
+        .action-btn:hover { background: #047857; }
 
         .schedule-box {
             margin-top: 16px;
@@ -176,20 +214,41 @@
     <div class="dashboard-card">
         <!-- Header & Status -->
         <div class="header">
-            <h1>Bedrock Server</h1>
+            <h1 id="ui-server-title">Bedrock Server</h1>
             <div id="status-badge" class="status-badge status-offline offline">
                 <span class="dot"></span> <span id="status-text">Checking...</span>
             </div>
         </div>
 
-        <!-- IP Address Block -->
-        <div class="ip-box">
-            <div>
-                <span style="font-size:0.75rem; color:#94a3b8; display:block;">PLAYIT IP ADDRESS</span>
-                <code id="server-ip">your-playit-address.ply.gg:12345</code>
+        <!-- Top Details: Name, IP, Port -->
+        <div class="details-container">
+            <div class="ip-box">
+                <div>
+                    <span>SERVER NAME</span>
+                    <code id="ui-server-name">My Bedrock Server</code>
+                </div>
+                <button class="copy-btn" onclick="copyText('ui-server-name')">Copy</button>
             </div>
-            <button class="copy-btn" onclick="copyIp()">Copy</button>
+
+            <div class="ip-box">
+                <div>
+                    <span>IP ADDRESS</span>
+                    <code id="ui-server-ip">your-playit-address.ply.gg</code>
+                </div>
+                <button class="copy-btn" onclick="copyText('ui-server-ip')">Copy</button>
+            </div>
+
+            <div class="ip-box">
+                <div>
+                    <span>PORT</span>
+                    <code id="ui-server-port">12345</code>
+                </div>
+                <button class="copy-btn" onclick="copyText('ui-server-port')">Copy</button>
+            </div>
         </div>
+
+        <!-- Direct Auto-Add to Minecraft Button -->
+        <a id="mc-auto-link" href="#" class="add-mc-btn">➕ Auto-Add Server to Minecraft</a>
 
         <!-- Info Grid -->
         <div class="info-grid">
@@ -199,7 +258,7 @@
             </div>
             <div class="info-box">
                 <span>GAME VERSION</span>
-                <p id="server-version">Bedrock (Latest)</p>
+                <p id="server-version">v1.21.20</p>
             </div>
             <div class="info-box">
                 <span>NEXT MAINTENANCE</span>
@@ -207,7 +266,7 @@
             </div>
             <div class="info-box">
                 <span>DIFFICULTY</span>
-                <p>Peaceful</p>
+                <p id="ui-difficulty">Peaceful</p>
             </div>
         </div>
 
@@ -223,13 +282,37 @@
     </div>
 
     <script>
-        // Replace this with your actual Playit.gg domain/port
-        const SERVER_ADDRESS = "your-playit-address.ply.gg"; 
+        /****************************************************************
+         * EDIT YOUR SERVER CONFIGURATION HERE
+         ****************************************************************/
+        const CONFIG = {
+            serverName: "Daksh Bedrock Realm",
+            ipAddress: "your-playit-address.ply.gg", // Replace with your Playit.gg IP
+            port: "12345",                          // Replace with your Playit.gg Port
+            fallbackVersion: "v1.21.20",             // Displayed version when server is offline
+            difficulty: "Peaceful",                  // Peaceful / Easy / Normal / Hard
+            nextMaintenance: "Sunday 11:00 PM"       // Next maintenance schedule
+        };
+
+        // Initialize UI with Configuration
+        function initDashboard() {
+            document.getElementById('ui-server-title').innerText = CONFIG.serverName;
+            document.getElementById('ui-server-name').innerText = CONFIG.serverName;
+            document.getElementById('ui-server-ip').innerText = CONFIG.ipAddress;
+            document.getElementById('ui-server-port').innerText = CONFIG.port;
+            document.getElementById('server-version').innerText = CONFIG.fallbackVersion;
+            document.getElementById('ui-difficulty').innerText = CONFIG.difficulty;
+            document.getElementById('maintenance-date').innerText = CONFIG.nextMaintenance;
+
+            // Generate direct Minecraft launch & add link
+            const mcLink = `minecraft://1.19.0/addServer?name=${encodeURIComponent(CONFIG.serverName)}&ip=${CONFIG.ipAddress}&port=${CONFIG.port}`;
+            document.getElementById('mc-auto-link').setAttribute('href', mcLink);
+        }
 
         async function fetchServerStatus() {
             try {
-                // Public API that checks Minecraft Bedrock server status
-                const res = await fetch(`https://api.mcsrvstat.us/bedrock/3/${SERVER_ADDRESS}`);
+                // Public API to query Bedrock server status
+                const res = await fetch(`https://api.mcsrvstat.us/bedrock/3/${CONFIG.ipAddress}:${CONFIG.port}`);
                 const data = await res.json();
 
                 const badge = document.getElementById('status-badge');
@@ -241,31 +324,31 @@
                     badge.className = "status-badge status-online online";
                     text.innerText = "ONLINE";
                     players.innerText = `${data.players.online} / ${data.players.max}`;
-                    version.innerText = data.version ? data.version : "Bedrock";
+                    version.innerText = data.version ? `v${data.version}` : CONFIG.fallbackVersion;
                 } else {
                     badge.className = "status-badge status-offline offline";
                     text.innerText = "OFFLINE";
                     players.innerText = "0 / 0";
+                    version.innerText = CONFIG.fallbackVersion;
                 }
             } catch (err) {
                 console.error("Failed to fetch status:", err);
             }
         }
 
-        function copyIp() {
-            const ipText = document.getElementById('server-ip').innerText;
-            navigator.clipboard.writeText(ipText);
-            alert("IP Address copied to clipboard!");
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            alert(`Copied: ${text}`);
         }
 
         function triggerServerStart() {
-            alert("Server start request sent! If the host phone is active, your server will boot shortly.");
-            // Webhook trigger can be connected here!
+            alert("Server start request sent!");
         }
 
-        // Fetch status immediately on page load
+        // Initialize UI and query live status
+        initDashboard();
         fetchServerStatus();
-        // Refresh status every 30 seconds
         setInterval(fetchServerStatus, 30000);
     </script>
 </body>
