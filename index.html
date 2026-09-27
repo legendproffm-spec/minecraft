@@ -233,7 +233,7 @@
             <div class="ip-box">
                 <div>
                     <span>IP ADDRESS</span>
-                    <code id="ui-server-ip">della-recoil.tun.ply.gg</code>
+                    <code id="ui-server-ip">your-playit-address.ply.gg</code>
                 </div>
                 <button class="copy-btn" onclick="copyText('ui-server-ip')">Copy</button>
             </div>
@@ -241,7 +241,7 @@
             <div class="ip-box">
                 <div>
                     <span>PORT</span>
-                    <code id="ui-server-port">38257</code>
+                    <code id="ui-server-port">12345</code>
                 </div>
                 <button class="copy-btn" onclick="copyText('ui-server-port')">Copy</button>
             </div>
@@ -258,15 +258,15 @@
             </div>
             <div class="info-box">
                 <span>GAME VERSION</span>
-                <p id="server-version">v1.26.51.1</p>
+                <p id="server-version">v1.21.20</p>
             </div>
             <div class="info-box">
                 <span>NEXT MAINTENANCE</span>
-                <p id="maintenance-date">3 October 2026</p>
+                <p id="maintenance-date">Sunday 11:00 PM</p>
             </div>
             <div class="info-box">
                 <span>DIFFICULTY</span>
-                <p id="ui-difficulty">easy</p>
+                <p id="ui-difficulty">Peaceful</p>
             </div>
         </div>
 
@@ -287,12 +287,16 @@
          ****************************************************************/
         const CONFIG = {
             serverName: "Daksh Bedrock Realm",
-            ipAddress: "della-recoil.tun.ply.gg", // Replace with your Playit.gg IP
-            port: "38257",                          // Replace with your Playit.gg Port
-            fallbackVersion: "v1.26.51.1",             // Displayed version when server is offline
-            difficulty: "Easy",                  // Peaceful / Easy / Normal / Hard
-            nextMaintenance: "3 October 2026"       // Next maintenance schedule
+            ipAddress: "your-playit-address.ply.gg", // Replace with your Minecraft Playit.gg IP
+            port: "12345",                          // Replace with your Minecraft Playit.gg Port
+            fallbackVersion: "v1.21.20",             // Displayed version when server is offline
+            difficulty: "Peaceful",                  // Peaceful / Easy / Normal / Hard
+            nextMaintenance: "Sunday 11:00 PM"       // Next maintenance schedule
         };
+
+        // Backend Remote Control Configuration (Live Bore Tunnel)
+        const BACKEND_URL = "http://bore.pub:39017";
+        const API_SECRET_KEY = "DAKSH_SECRET_123";
 
         // Initialize UI with Configuration
         function initDashboard() {
@@ -342,8 +346,34 @@
             alert(`Copied: ${text}`);
         }
 
-        function triggerServerStart() {
-            alert("Server start request sent!");
+        async function triggerServerStart() {
+            const btn = document.querySelector('.action-btn');
+            btn.innerText = "⏳ Requesting Start...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_SECRET_KEY}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert("🚀 Success: Start command sent! The server is booting up.");
+                } else {
+                    alert(`❌ Error: ${result.error || 'Failed to start server.'}`);
+                }
+            } catch (err) {
+                alert("❌ Connection Error: Backend service is unreachable.");
+                console.error(err);
+            } finally {
+                btn.innerText = "🚀 Request Server Start";
+                btn.disabled = false;
+            }
         }
 
         // Initialize UI and query live status
